@@ -10,3 +10,4 @@ The main question is:
 
 The final analysis and recommendations are written in the Jupyter notebook.
 
+<img width="1709" height="904" alt="tableauDash" src="https://github.com/user-attachments/assets/6327663d-31cc-4b1e-8f78-3f262e4de440" />
