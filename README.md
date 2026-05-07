@@ -12,3 +12,6 @@ The final analysis and recommendations are written in the Jupyter notebook.
 
 ## Tableau Dashboard
 <img width="900" height="500" alt="tableauDash" src="https://github.com/user-attachments/assets/6327663d-31cc-4b1e-8f78-3f262e4de440" />
+
+## Power BI Dashboard
+<img width="900" height="500" alt="BIdashboard" src="https://github.com/user-attachments/assets/98ab0882-3ae4-47e6-b0a2-75cb0f0b58a9" />
