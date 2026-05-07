@@ -1,0 +1,13 @@
+dataset,column,dtype,null_count,null_pct,unique
+insurance,age,int64,0,0.0,47
+insurance,sex,str,0,0.0,2
+insurance,bmi,float64,0,0.0,548
+insurance,children,int64,0,0.0,6
+insurance,smoker,str,0,0.0,2
+insurance,region,str,0,0.0,4
+insurance,charges,float64,0,0.0,1337
+insurance,age_group,category,0,0.0,5
+insurance,bmi_category,category,0,0.0,4
+insurance,is_smoker,int64,0,0.0,2
+insurance,is_obese,int64,0,0.0,2
+insurance,charge_level,str,0,0.0,3
