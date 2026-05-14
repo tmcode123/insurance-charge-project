@@ -6,7 +6,7 @@ This project analyzes medical insurance charges to identify which patient factor
 
 The main question is:
 
-> What factors are most strongly connected to higher insurance charges?
+What factors are most strongly connected to higher insurance charges?
 
 The final analysis and recommendations are written in the Jupyter notebook.
 
