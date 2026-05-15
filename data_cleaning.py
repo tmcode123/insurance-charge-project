@@ -1,6 +1,4 @@
 """
-data_cleaning.py
-
 Cleans the raw insurance dataset and loads it into a SQLite database.
 Run this script first before opening the notebook, Power BI, Tableau, or SQL analysis.
 
@@ -15,7 +13,6 @@ Run: python data_cleaning.py
 import sqlite3
 import warnings
 from pathlib import Path
-
 import pandas as pd
 
 warnings.filterwarnings("ignore")
@@ -60,7 +57,9 @@ REQUIRED_COLS: list[str] = [
 
 
 def log_step(msg: str) -> None:
-    """Print a progress message so you can follow what the script is doing."""
+    """
+    Print a progress message so you can follow what the script is doing.
+    """
     print(f"[ETL] {msg}")
 
 
@@ -79,7 +78,6 @@ def check_files_exist() -> None:
 def quality_report(df: pd.DataFrame, name: str) -> pd.DataFrame:
     """
     Produces a data quality summary for a dataframe.
-
     For each column it reports dtype, null count, null percentage,
     and number of unique values.
     """
@@ -94,7 +92,9 @@ def quality_report(df: pd.DataFrame, name: str) -> pd.DataFrame:
 
 
 def validate_required_columns(df: pd.DataFrame) -> None:
-    """Make sure the raw file contains every column needed for analysis."""
+    """
+    Make sure the raw file contains every column needed for analysis.
+    """
     missing_cols = [col for col in REQUIRED_COLS if col not in df.columns]
 
     if missing_cols:
@@ -102,7 +102,9 @@ def validate_required_columns(df: pd.DataFrame) -> None:
 
 
 def standardize_text_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Clean text fields so categories are consistent for SQL and dashboards."""
+    """
+    Clean text fields so categories are consistent for SQL and dashboards.
+    """
     df["sex"] = df["sex"].str.strip().str.lower()
     df["smoker"] = df["smoker"].str.strip().str.lower()
     df["region"] = df["region"].str.strip().str.lower()
@@ -111,7 +113,9 @@ def standardize_text_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def validate_category_values(df: pd.DataFrame) -> None:
-    """Check that category columns only contain expected values."""
+    """
+    Check that category columns only contain expected values.
+    """
     valid_values = {
         "sex": {"female", "male"},
         "smoker": {"yes", "no"},
@@ -126,7 +130,9 @@ def validate_category_values(df: pd.DataFrame) -> None:
 
 
 def validate_numeric_values(df: pd.DataFrame) -> None:
-    """Check that numeric fields are within reasonable ranges."""
+    """
+    Check that numeric fields are within reasonable ranges.
+    """
     rules = {
         "age": df["age"].between(18, 64),
         "bmi": df["bmi"].gt(0),
@@ -150,7 +156,7 @@ DATA_DIR.mkdir(exist_ok=True)
 log_step("Loading raw data ...")
 
 df = pd.read_csv(RAW_PATH)
-log_step(f"  insurance_raw : {df.shape[0]:,} rows x {df.shape[1]} cols")
+log_step(f"Insurance_raw : {df.shape[0]:,} rows x {df.shape[1]} cols")
 
 
 # Clean the data
@@ -174,11 +180,12 @@ df["charges"] = pd.to_numeric(df["charges"], errors="coerce")
 df = standardize_text_columns(df)
 
 # Check for missing values before continuing
-missing_total = int(df.isnull().sum().sum())
+missing_by_column = df.isna().sum()
+missing_total = missing_by_column.sum()
 
 if missing_total > 0:
     print("\nMissing Values")
-    print(df.isnull().sum())
+    print(missing_by_column)
     raise ValueError("Missing values found. Review the raw file before continuing.")
 
 # Validate values before feature engineering
@@ -188,7 +195,7 @@ validate_numeric_values(df)
 # Remove exact duplicate customer records
 before = len(df)
 df = df.drop_duplicates().reset_index(drop=True)
-log_step(f"  Removed {before - len(df):,} duplicate rows")
+log_step(f"Removed {before - len(df):,} duplicate rows")
 
 # Convert integer-like fields after validation
 df["age"] = df["age"].astype(int)
@@ -218,11 +225,7 @@ df["charge_level"] = "Medium"
 df.loc[df["charges"] <= q1, "charge_level"] = "Low"
 df.loc[df["charges"] >= q3, "charge_level"] = "High"
 
-log_step(f"  Clean shape: {df.shape}")
-log_step(f"  Average charge: ${df['charges'].mean():,.2f}")
-log_step(f"  Median charge:  ${df['charges'].median():,.2f}")
-log_step(f"  Max charge:     ${df['charges'].max():,.2f}")
-
+log_step(f"Clean shape: {df.shape}")
 
 # Generate a data quality report
 log_step("Generating data quality report ...")
@@ -238,26 +241,8 @@ log_step("Saving cleaned data ...")
 df.to_csv(CLEAN_PATH, index=False)
 qr.to_csv(QUALITY_PATH, index=False)
 
-log_step(f"  -> {CLEAN_PATH}   ({len(df):,} rows)")
-log_step(f"  -> {QUALITY_PATH}")
-
-
-print("\nSummary Stats")
-print(df[["age", "bmi", "children", "charges"]].describe().round(2))
-
-print("\nAverage Charges by Smoker")
-print(
-    df.groupby("smoker")["charges"]
-    .agg(["count", "mean", "median"])
-    .round(2)
-)
-
-print("\nAverage Charges by BMI Category")
-print(
-    df.groupby("bmi_category")["charges"]
-    .agg(["count", "mean", "median"])
-    .round(2)
-)
+log_step(f"-> {CLEAN_PATH}   ({len(df):,} rows)")
+log_step(f"-> {QUALITY_PATH}")
 
 
 # Load into SQLite database
@@ -270,5 +255,5 @@ with sqlite3.connect(DB_PATH) as conn:
     cursor.execute("SELECT COUNT(*) FROM insurance")
     row_count: int = cursor.fetchone()[0]
 
-log_step(f"  -> {DB_PATH}   ({row_count:,} rows in 'insurance' table)")
+log_step(f"-> {DB_PATH}   ({row_count:,} rows in 'insurance' table)")
 log_step("Done")
